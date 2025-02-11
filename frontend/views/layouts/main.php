@@ -99,7 +99,7 @@ AppAsset::register($this);
                     <i class="fa fa-sign-in-alt me-2"></i>Iniciar Sesión
                 </a>
             <?php else: ?>
-                <?= Html::beginForm(['/site/logout'], 'post', ['class' => 'd-flex']) ?>
+                <?= Html::beginForm(['index.php/site/logout'], 'post', ['class' => 'd-flex']) ?>
                     <?= Html::submitButton(
                         'Cerrar Sesión (' . Yii::$app->user->identity->username . ')',
                         ['class' => 'btn btn-primary']
