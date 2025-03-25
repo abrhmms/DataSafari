@@ -3,6 +3,7 @@
 /** @var yii\web\View $this */
 /** @var app\models\Animal[] $animales */
 
+use yii\bootstrap5\ActiveForm;
 use yii\helpers\Html;
 
 $this->title = 'Catálogo de Animales';
@@ -15,10 +16,42 @@ $this->registerCssFile('@web/css/catalogo.css', ['depends' => [yii\web\AssetBund
     </h1>
 
     <br><br>
+
+    <!-- 🔎 Formulario de búsqueda -->
+    <div class="search-container">
+    <?php $form = ActiveForm::begin([
+        'action' => ['catalogo'], // La acción donde buscará
+        'method' => 'get',
+        'id' => 'search-form', // Añadimos un ID al formulario
+    ]); ?>
+
+    <div class="search-input-container">
+        <span class="search-icon">&#128269;</span>
+        <?= $form->field($searchModel, 'nombre')->textInput([
+            'placeholder' => 'Buscar por nombre',
+            'class' => 'search-input',
+        ])->label(false) ?>
+    </div>
+
+    <div class="form-group">
+        <?= Html::submitButton('Buscar', [
+            'class' => 'btn btn-primary',
+        ]) ?>
+        <?= Html::resetButton('Restablecer', [
+            'class' => 'btn btn-reset',
+            'type' => 'reset', // Asegúrate de que sea tipo "reset"
+        ]) ?>
+    </div>
+
+    <?php ActiveForm::end(); ?>
+</div>
+
+    <br><br>
+
     <div class="container">
         <div class="card__container">
-            <?php if (!empty($animales)): ?>
-                <?php foreach ($animales as $animal): ?>
+            <?php if (!empty($dataProvider)): ?>
+                <?php foreach ($dataProvider as $animal): ?>
                     <div class="card__article">
                         <?php if (!empty($animal->imagen_ilustrativa)): ?>
                             <img src="<?= Yii::getAlias('@web') . '/' . Html::encode($animal->imagen_ilustrativa) ?>"
@@ -44,10 +77,18 @@ $this->registerCssFile('@web/css/catalogo.css', ['depends' => [yii\web\AssetBund
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <p>No hay animales registrados en el catálogo.</p>
+                <p>No contamos con ese animal.</p>
             <?php endif; ?>
         </div>
     </div>
 </div>
 
 <br><br><br>
+
+<script>
+    // Script para asegurar que el formulario se restablezca correctamente
+    document.querySelector('.btn-reset').addEventListener('click', function() {
+        document.getElementById('search-form').reset(); // Restablece el formulario
+        window.location.href = window.location.pathname; // Recarga la página sin parámetros
+    });
+</script>

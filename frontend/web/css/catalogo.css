@@ -117,3 +117,94 @@ img {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* Estilo para el contenedor del formulario de búsqueda */
+.search-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: var(--container-color);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para el contenedor del campo de búsqueda */
+.search-input-container {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+/* Estilo para el icono de búsqueda */
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--text-color);
+  z-index: 1;
+}
+
+/* Estilo para el campo de búsqueda */
+.search-input-container input {
+  width: 100%;
+  padding: 10px 10px 10px 35px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  font-family: var(--body-font);
+  color: var(--text-color);
+  background-color: var(--body-color);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-input-container input:focus {
+  border-color: var(--first-color);
+  box-shadow: 0 0 5px rgba(82, 168, 36, 0.5);
+  outline: none;
+}
+
+/* Estilo para los botones */
+.form-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* Estilo base para todos los botones */
+.btn {
+  padding: 10px 20px;
+  border-radius: 25px; /* Bordes muy redondeados */
+  font-size: 16px;
+  font-family: var(--body-font);
+  cursor: pointer;
+  transition: all 0.3s ease; /* Corregido "e6ase" a "ease" */
+  border: none;
+  flex: 1;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Sombreado marcado */
+}
+
+/* Estilo para el botón primario (Buscar) */
+.btn-primary {
+  background-color: var(--first-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: hsl(82, 60%, 23%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3); /* Sombreado más intenso al hacer hover */
+}
+
+/* Estilo para el botón de restablecer */
+.btn-reset {
+  background-color: #ffc107; /* Amarillo bonito */
+  color: #000;
+}
+
+.btn-reset:hover {
+  background-color: #e0a800; /* Amarillo más oscuro al hacer hover */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3); /* Sombreado más intenso al hacer hover */
+}

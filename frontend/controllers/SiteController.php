@@ -3,6 +3,7 @@
 namespace frontend\controllers;
 
 use common\models\Animal;
+use common\models\AnimalSearch;
 use Yii;
 
 use yii\web\Controller;
@@ -183,9 +184,15 @@ class SiteController extends Controller
 
     public function actionCatalogo()
     {
-        $animales = Animal::find()->all(); // Obtiene todos los animales de la BD
-        return $this->render('catalogo', ['animales' => $animales]);
+        $searchModel = new AnimalSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+    
+        return $this->render('catalogo', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider->getModels(),
+        ]);
     }
+    
 
     public function actionMapaZoo()
     {
@@ -201,31 +208,44 @@ class SiteController extends Controller
         return $this->render('mapauser');
     }
 
+
     public function actionGuardarPunto()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-
+    
         $request = Yii::$app->request;
         if ($request->isPost) {
             $punto = new PuntosMapa();
             $punto->x = $request->post('x');
             $punto->y = $request->post('y');
-
             $punto->nombre = $request->post('nombre');
             $punto->descripcion = $request->post('descripcion');
             $punto->tiene_animales = $request->post('tiene_animales');
-
+        
+            // ✅ Asegurar que se está importando correctamente
+            $imagen = UploadedFile::getInstanceByName('imagen');
+        
+            if ($imagen) {
+                $rutaImagen = 'img/zonas/' . uniqid() . '.' . $imagen->extension;
+                if ($imagen->saveAs(Yii::getAlias('@webroot') . '/' . $rutaImagen)) {
+                    $punto->imagen = $rutaImagen; // Guardamos la ruta en la BD
+                }
+            }
+        
             if ($punto->save()) {
                 return [
                     'mensaje' => 'Punto guardado correctamente.',
-                    'puntoId' => $punto->id, // ✅ Asegúrate de devolver el ID
+                    'puntoId' => $punto->id,
                 ];
             } else {
                 return ['error' => 'Error al guardar el punto.'];
             }
         }
+        
+        
         return ['error' => 'Método no permitido.'];
     }
+    
 
 
 

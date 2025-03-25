@@ -42,33 +42,23 @@ class AnimalSearch extends Animal
     public function search($params)
     {
         $query = Animal::find();
-
-        // add conditions that should always apply here
-
+    
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
-
+    
         $this->load($params);
-
+    
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
             return $dataProvider;
         }
-
-        // grid filtering conditions
-        $query->andFilterWhere([
-            'id_animal' => $this->id_animal,
-            'edad' => $this->edad,
-            'peso' => $this->peso,
-            'id_especies' => $this->id_especies,
-            'id_habitat' => $this->id_habitat,
-        ]);
-
-        $query->andFilterWhere(['like', 'nombre', $this->nombre])
-            ->andFilterWhere(['like', 'imagen_ilustrativa', $this->imagen_ilustrativa]);
-
+    
+        // Si se ingresó un nombre, filtrar por coincidencias parciales
+        if (!empty($this->nombre)) {
+            $query->andFilterWhere(['like', 'nombre', $this->nombre]);
+        }
+    
         return $dataProvider;
     }
+    
 }

@@ -3,6 +3,11 @@
 $this->title = 'Mapa Interactivo (Admin)';
 ?>
 
+<!-- Añade los enlaces de Bootstrap aquí -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="<?= Yii::getAlias('@web') ?>/css/bootstrap.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <div class="site-mapazoo">
     <h2>Mapa Interactivo (Admin)</h2>
     <p>Haz clic en el mapa para agregar puntos.</p>
@@ -44,14 +49,14 @@ $this->title = 'Mapa Interactivo (Admin)';
 
 <!-- Modal para mostrar los animales -->
 <div id="modalAnimales" class="modal fade" tabindex="-1" aria-labelledby="modalAnimalesLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalAnimalesLabel">Animales en esta Zona</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <div id="contenidoAnimales"></div>
+                <div id="contenidoAnimales" class="animales-container"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -59,6 +64,7 @@ $this->title = 'Mapa Interactivo (Admin)';
         </div>
     </div>
 </div>
+
 
 <script>
 // 1. Definir todas las funciones primero
@@ -150,14 +156,14 @@ function mostrarTarjeta(nombre, descripcion, imagen, tieneAnimales, puntoId) {
 
 
 function verAnimales(punto_id) {
-    console.log("Consultando animales para punto_id:", punto_id); // <-- Verifica que no sea undefined
+    console.log("Consultando animales para punto_id:", punto_id);
 
     $.ajax({
         url: '<?= Yii::$app->urlManager->createUrl(["animal/animales-por-zona"]) ?>',
         type: 'GET',
         data: { punto_id: punto_id },
         success: function(data) {
-            console.log("URL llamada:", this.url + "?punto_id=" + punto_id); // <-- Verifica la URL que se genera
+            console.log("URL llamada:", this.url + "?punto_id=" + punto_id);
             console.log("Respuesta de animales:", data);
             $('#contenidoAnimales').html(data);
             $('#modalAnimales').modal('show');
@@ -187,6 +193,11 @@ document.addEventListener("DOMContentLoaded", function() {
         })
         .catch(error => console.error('Error al cargar puntos:', error));
 });
+
+document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("tarjeta-info").style.display = "none";
+});
+
 </script>
 
 
@@ -242,20 +253,75 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     /* 🔹 Tarjetas y Modales */
-    .tarjeta,
-    .modal {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
-        display: none;
-        width: 340px;
-        text-align: center;
-    }
+/* 🔹 Mantiene el estilo de las tarjetas */
+.tarjeta {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 340px; /* Si las tarjetas tenían un tamaño diferente, ajusta aquí */
+}
+
+/* 🔹 Estilos generales para los modales */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+    display: none;
+    text-align: center;
+}
+
+/* 🔹 Modal de ingreso de zonas */
+#modal-ingreso {
+    width: 340px;
+}
+
+/* 🔹 Modal de animales */
+#modalAnimales {
+    width: 840px;
+}
+
+#modalAnimales .modal-footer {
+    display: flex;
+    justify-content: space-between; /* Centra el botón */
+    align-items: center; /* Centra el botón verticalmente */
+    padding: 10px; /* Añade espacio alrededor del pie del modal */
+}
+
+#modalAnimales .modal-footer .btn-secondary {
+    background-color: #E53935; /* Rojo bonito */
+    color: white; /* Color de texto blanco */
+    padding: 14px 30px; /* Botón más grande (más alto y ancho) */
+    border-radius: 12px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(229, 57, 53, 0.3); /* Sombra suave */
+    font-size: 18px; /* Tamaño de fuente más grande */
+    font-weight: bold; /* Texto en negrita */
+    transition: all 0.3s ease; /* Transición suave */
+    white-space: nowrap; /* Evita que el texto se divida si es largo */
+}
+
+#modalAnimales .modal-footer .btn-secondary:hover {
+    background-color: #D32F2F; /* Rojo más oscuro al hacer hover */
+    box-shadow: 0 6px 12px rgba(229, 57, 53, 0.5); /* Sombra más fuerte al hacer hover */
+}
+
+
+
+
+
+
+
+
 
     .tarjeta h3,
     .modal h3 {
@@ -346,4 +412,20 @@ document.addEventListener("DOMContentLoaded", function() {
         box-shadow: 0px 6px 12px rgba(76, 175, 80, 0.5);
         /* Aumenta el sombreado */
     }
+
+    #tarjeta-info {
+    display: none; /* 🔹 Oculta la tarjeta al cargar la página */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 340px;
+}
+
+
 </style>
