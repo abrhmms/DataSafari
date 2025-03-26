@@ -211,8 +211,6 @@ class SiteController extends Controller
 
     public function actionGuardarPunto()
     {
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-    
         $request = Yii::$app->request;
         if ($request->isPost) {
             $punto = new PuntosMapa();
@@ -220,30 +218,27 @@ class SiteController extends Controller
             $punto->y = $request->post('y');
             $punto->nombre = $request->post('nombre');
             $punto->descripcion = $request->post('descripcion');
-            $punto->tiene_animales = $request->post('tiene_animales');
+            $punto->tiene_animales = $request->post('tiene_animales', 0); // Valor por defecto 0 si no está marcado
         
-            // ✅ Asegurar que se está importando correctamente
             $imagen = UploadedFile::getInstanceByName('imagen');
         
             if ($imagen) {
                 $rutaImagen = 'img/zonas/' . uniqid() . '.' . $imagen->extension;
                 if ($imagen->saveAs(Yii::getAlias('@webroot') . '/' . $rutaImagen)) {
-                    $punto->imagen = $rutaImagen; // Guardamos la ruta en la BD
+                    $punto->imagen = $rutaImagen;
                 }
             }
-        
+            
             if ($punto->save()) {
-                return [
-                    'mensaje' => 'Punto guardado correctamente.',
-                    'puntoId' => $punto->id,
-                ];
+                Yii::$app->session->setFlash('success', 'Punto guardado correctamente.');
             } else {
-                return ['error' => 'Error al guardar el punto.'];
+                Yii::$app->session->setFlash('error', 'Error al guardar el punto.');
             }
+            
+            return $this->redirect(['site/mapa-zoo']);
         }
         
-        
-        return ['error' => 'Método no permitido.'];
+        throw new \yii\web\BadRequestHttpException('Método no permitido.');
     }
     
 

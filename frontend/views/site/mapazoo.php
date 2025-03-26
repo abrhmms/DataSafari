@@ -28,28 +28,34 @@ $this->title = 'Mapa Interactivo (Admin)';
 <div id="modal-ingreso" class="modal">
     <div class="modal-contenido">
         <h3>Agregar Zona</h3>
-        <div class="formulario">
-            <label for="nombre-zona">Nombre:</label>
-            <input type="text" id="nombre-zona" placeholder="Ingrese el nombre">
+        <form id="form-zona" action="<?= Yii::$app->urlManager->createUrl(["site/guardar-punto"]) ?>" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>" value="<?= Yii::$app->request->csrfToken ?>">
+            <input type="hidden" id="coord-x" name="x">
+            <input type="hidden" id="coord-y" name="y">
+            
+            <div class="formulario">
+                <label for="nombre-zona">Nombre:</label>
+                <input type="text" id="nombre-zona" name="nombre" placeholder="Ingrese el nombre" required>
 
-            <label for="descripcion-zona">Descripción:</label>
-            <textarea id="descripcion-zona" placeholder="Ingrese una descripción"></textarea>
+                <label for="descripcion-zona">Descripción:</label>
+                <textarea id="descripcion-zona" name="descripcion" placeholder="Ingrese una descripción" required></textarea>
 
-            <label for="imagen-zona">Imagen:</label>
-            <input type="file" id="imagen-zona" accept="image/*">
+                <label for="imagen-zona">Imagen:</label>
+                <input type="file" id="imagen-zona" name="imagen" accept="image/*" required>
 
-            <label for="tiene-animales">¿Tiene Animales?</label>
-            <input type="checkbox" id="tiene-animales">
+                <label for="tiene-animales">¿Tiene Animales?</label>
+                <input type="checkbox" id="tiene-animales" name="tiene_animales" value="1">
 
-            <button class="btn-verde" onclick="guardarZona()">Guardar</button>
-            <button class="btn-rojo" onclick="cerrarModal()">Cancelar</button>
-        </div>
+                <button type="submit" class="btn-verde">Guardar</button>
+                <button type="button" class="btn-rojo" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </form>
     </div>
 </div>
 
 <!-- Modal para mostrar los animales -->
 <div id="modalAnimales" class="modal fade" tabindex="-1" aria-labelledby="modalAnimalesLabel" aria-hidden="true">
-<div class="modal-dialog modal-fullscreen">
+    <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalAnimalesLabel">Animales en esta Zona</h5>
@@ -65,15 +71,16 @@ $this->title = 'Mapa Interactivo (Admin)';
     </div>
 </div>
 
-
 <script>
 // 1. Definir todas las funciones primero
 function abrirModalIngreso(event) {
     var img = document.getElementById("mapa");
     var rect = img.getBoundingClientRect();
-    window.coordX = ((event.clientX - rect.left) / rect.width) * 100;
-    window.coordY = ((event.clientY - rect.top) / rect.height) * 100;
+    var coordX = ((event.clientX - rect.left) / rect.width) * 100;
+    var coordY = ((event.clientY - rect.top) / rect.height) * 100;
 
+    document.getElementById("coord-x").value = coordX.toFixed(2);
+    document.getElementById("coord-y").value = coordY.toFixed(2);
     document.getElementById("modal-ingreso").style.display = "block";
 }
 
@@ -81,40 +88,8 @@ function cerrarModal() {
     document.getElementById("modal-ingreso").style.display = "none";
 }
 
-function guardarZona() {
-    const nombre = document.getElementById("nombre-zona").value;
-    const descripcion = document.getElementById("descripcion-zona").value;
-    const tieneAnimales = document.getElementById("tiene-animales").checked ? 1 : 0;
-    const imagenInput = document.getElementById("imagen-zona").files[0];
-
-    if (nombre && descripcion && imagenInput) {
-        const formData = new FormData();
-        formData.append('x', window.coordX.toFixed(2));
-        formData.append('y', window.coordY.toFixed(2));
-        formData.append('nombre', nombre);
-        formData.append('descripcion', descripcion);
-        formData.append('tiene_animales', tieneAnimales);
-        formData.append('imagen', imagenInput);
-
-        fetch('<?= Yii::$app->urlManager->createUrl(["site/guardar-punto"]) ?>', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-Token': '<?= Yii::$app->request->csrfToken ?>'
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.mensaje);
-            cerrarModal();
-            location.reload();
-        })
-        .catch(error => console.error('Error:', error));
-    }
-}
-
 function agregarPuntoAlMapa(x, y, nombre, descripcion, imagen, tieneAnimales, puntoId) {
-    console.log("puntoId en agregarPuntoAlMapa:", puntoId); // Verifica el valor de puntoId
+    console.log("puntoId en agregarPuntoAlMapa:", puntoId);
 
     var contenedor = document.getElementById("contenedor");
     var punto = document.createElement("div");
@@ -122,15 +97,13 @@ function agregarPuntoAlMapa(x, y, nombre, descripcion, imagen, tieneAnimales, pu
     punto.style.left = x + "%";
     punto.style.top = y + "%";
 
-    // Al agregar el evento, asegúrate de pasar el puntoId correctamente
     punto.addEventListener("click", function() {
-        console.log("puntoId en click:", puntoId);  // Verifica aquí el valor del puntoId
-        mostrarTarjeta(nombre, descripcion, imagen, tieneAnimales, puntoId);  // Asegúrate de pasar puntoId
+        console.log("puntoId en click:", puntoId);
+        mostrarTarjeta(nombre, descripcion, imagen, tieneAnimales, puntoId);
     });
 
     contenedor.appendChild(punto);
 }
-
 
 function mostrarTarjeta(nombre, descripcion, imagen, tieneAnimales, puntoId) {
     console.log("puntoId en mostrarTarjeta:", puntoId);
@@ -153,8 +126,6 @@ function mostrarTarjeta(nombre, descripcion, imagen, tieneAnimales, puntoId) {
     tarjetaContenido.style.display = "block";
 }
 
-
-
 function verAnimales(punto_id) {
     console.log("Consultando animales para punto_id:", punto_id);
 
@@ -175,7 +146,6 @@ function verAnimales(punto_id) {
     });
 }
 
-
 function cerrarTarjeta() {
     const tarjetaContenido = document.getElementById("tarjeta-info");
     tarjetaContenido.style.display = "none";
@@ -184,22 +154,30 @@ function cerrarTarjeta() {
 
 // 2. Ejecutar código después de que el DOM esté completamente cargado
 document.addEventListener("DOMContentLoaded", function() {
-    fetch('<?= Yii::$app->urlManager->createUrl(["site/obtener-puntos"]) ?>')
-        .then(response => response.json())
-        .then(data => {
+    $.ajax({
+        url: '<?= Yii::$app->urlManager->createUrl(["site/obtener-puntos"]) ?>',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
             data.forEach(punto => {
                 agregarPuntoAlMapa(punto.x, punto.y, punto.nombre, punto.descripcion, punto.imagen, punto.tiene_animales, punto.id);
             });
-        })
-        .catch(error => console.error('Error al cargar puntos:', error));
-});
-
-document.addEventListener("DOMContentLoaded", function() {
+            console.log(data);
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al cargar puntos:', error);
+        }
+    });
+    
     document.getElementById("tarjeta-info").style.display = "none";
+    
+    // Manejar el envío del formulario
+    document.getElementById('form-zona').addEventListener('submit', function(e) {
+        // No necesitamos hacer nada especial aquí, el formulario se enviará normalmente
+        // La página se recargará después del envío
+    });
 });
-
 </script>
-
 
 
 <style>
